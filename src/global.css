@@ -1,0 +1,8 @@
+.list-table {
+    margin: 0 auto;
+    margin-top: 5%;
+    padding: 10px;
+    width: 850px;
+    border:  1px solid #ccc;
+    border-radius: 3px;
+}
