@@ -59,6 +59,7 @@ const Users = ({ users }) => {
     )
 }
 
+// state里面除了users,还有router、loading
 const mapStateToProps = ({ users }) => ({
     users
 })
