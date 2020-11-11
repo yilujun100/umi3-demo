@@ -8,6 +8,7 @@
  * ts配置除了能够约束代码规范以外，还能提示我们如何去写一些代码
  */
 import { Reducer, Effect, Subscription } from 'umi'
+import { getRemoteList } from './service'
 
 interface IUserModel {
     namespace: 'users',
@@ -15,7 +16,9 @@ interface IUserModel {
     reducers: {
         getList: Reducer
     },
-    effects: {},
+    effects: {
+        getRemote: Effect
+    },
     subscriptions: {
         setup: Subscription
     }
@@ -25,39 +28,22 @@ const UserModel = {
     namespace: 'users', // model的唯一标识名
     state: {}, // 仓库初始值
     reducers: {
-        getList(state, action) {
+        getList(state, { payload }) {
             // return newState;
-            const data = [
-                {
-                    key: '1',
-                    name: 'John Brown',
-                    age: 32,
-                    address: 'New York No. 1 Lake Park',
-                    tags: ['nice', 'developer'],
-                },
-                {
-                    key: '2',
-                    name: 'Jim Green',
-                    age: 42,
-                    address: 'London No. 1 Lake Park',
-                    tags: ['loser'],
-                },
-                {
-                    key: '3',
-                    name: 'Joe Black',
-                    age: 32,
-                    address: 'Sidney No. 1 Lake Park',
-                    tags: ['cool', 'teacher'],
-                },
-            ]
-            return data
+            return payload
         }
     },
     effects: {
         // *functionName(action, effects) {
         //     yield put()
         // }
-        *query({ payload }, { call, put }) {
+        *getRemote(action, { put, call }) {
+            const data = yield call(getRemoteList)
+            console.log(data)
+            yield put({
+                type: 'getList',
+                payload: data
+            })
         }
     },
     subscriptions: {
@@ -65,7 +51,7 @@ const UserModel = {
             return history.listen(({ pathname }) => {
                 if (pathname === '/users') {
                     dispatch({
-                        type: 'getList',
+                        type: 'getRemote',
                         // payload: {}
                     })
                 }
