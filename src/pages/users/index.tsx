@@ -1,8 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Table, Tag, Space } from 'antd'
 import { connect } from 'umi'
+import UserModal from './components/UserModal'
 
 const Users = ({ users }) => {
+    const [modalVisible, setModalVisible] = useState(false)
+    const [record, setRecord] = useState(null)
+    const handleEdit = record => {
+        setModalVisible(true)
+        setRecord(record)
+    }
+    const handleClose = () => {
+        setModalVisible(false)
+    }
     const columns = [
         {
             title: 'ID',
@@ -25,7 +35,7 @@ const Users = ({ users }) => {
             key: 'action',
             render: (text, record) => (
                 <Space size="middle">
-                    <a>Edit</a>
+                    <a onClick={() => handleEdit(record)}>Edit</a>
                     <a>Delete</a>
                 </Space>
             ),
@@ -35,6 +45,7 @@ const Users = ({ users }) => {
     return (
         <div className="list-table">
             <Table columns={columns} dataSource={users.data} />
+            <UserModal visible={modalVisible} record={record} closeHandler={handleClose} />
         </div>
     )
 }
