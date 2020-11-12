@@ -44,7 +44,7 @@ const Users = ({ users }) => {
 
     return (
         <div className="list-table">
-            <Table columns={columns} dataSource={users.data} />
+            <Table columns={columns} dataSource={users.data} rowKey="id" />
             <UserModal visible={modalVisible} record={record} closeHandler={handleClose} />
         </div>
     )
