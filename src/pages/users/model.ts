@@ -8,7 +8,8 @@
  * ts配置除了能够约束代码规范以外，还能提示我们如何去写一些代码
  */
 import { Reducer, Effect, Subscription } from 'umi'
-import { getRemoteList } from './service'
+import { getRemoteList, editRecord, deleteRecord } from './service'
+import { message } from 'antd'
 
 interface IUserModel {
     namespace: 'users',
@@ -44,6 +45,17 @@ const UserModel = {
                 type: 'getList',
                 payload: data
             })
+        },
+        *delete({ payload: {id} }, { put, call }) {
+            const data = yield call(deleteRecord, { id })
+            if (data) {
+                message.success('Delete successfully.')
+                yield put({
+                    type: 'getRemote'
+                })
+            } else {
+                message.error('Delete failed.')
+            }
         }
     },
     subscriptions: {

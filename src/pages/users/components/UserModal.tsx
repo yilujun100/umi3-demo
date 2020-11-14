@@ -2,23 +2,27 @@ import React, { useEffect } from 'react'
 import { Modal, Form, Input } from 'antd'
 
 const UserModal = props => {
-    const { visible, record, closeHandler } = props
+    const { visible, record, closeHandler, onFinish } = props
     const [form] = Form.useForm()
     useEffect(() => {
         form.setFieldsValue(record)
     }, [visible])
+    const onOk = () => {
+        form.submit()
+    }
     return (
         <div>
             <Modal
                 title="User Modal"
                 visible={visible}
-                onOk={closeHandler}
+                onOk={onOk}
                 onCancel={closeHandler}
                 forceRender
             >
                 <Form
                     form={form}
                     name="userForm"
+                    onFinish={onFinish}
                 >
                     <Form.Item
                         label="Name"

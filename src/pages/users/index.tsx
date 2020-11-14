@@ -1,15 +1,14 @@
 import React, { useState } from 'react'
-import { Table, Tag, Space } from 'antd'
+import { Table, Tag, Space, Popconfirm, message } from 'antd'
 import { connect } from 'umi'
 import UserModal from './components/UserModal'
+import {
+    editRecord
+} from './service'
 
-const Users = ({ users }) => {
+const UserListPage = ({ users, dispatch }) => {
     const [modalVisible, setModalVisible] = useState(false)
     const [record, setRecord] = useState(null)
-    const handleEdit = record => {
-        setModalVisible(true)
-        setRecord(record)
-    }
     const handleClose = () => {
         setModalVisible(false)
     }
@@ -36,16 +35,66 @@ const Users = ({ users }) => {
             render: (text, record) => (
                 <Space size="middle">
                     <a onClick={() => handleEdit(record)}>Edit</a>
-                    <a>Delete</a>
+                    <Popconfirm
+                        title="Are you sure delete this user?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                            handleDelete(record.id)
+                        }}
+                    >
+                        <a>Delete</a>
+                    </Popconfirm>
                 </Space>
             ),
         },
     ]
+    const handleEdit = record => {
+        setModalVisible(true)
+        setRecord(record)
+    }
+    const handleDelete = id => {
+        dispatch({
+            type: 'users/delete',
+            payload: {
+                id
+            }
+        })
+    }
+    const handleFinish = async (values) => {
+        let id = 0
+        let serviceFun
+        if (record) {
+            id = record.id
+        }
+        if (id) {
+            serviceFun = editRecord
+        }
+        const result = await serviceFun({ id, values })
+        if (result) {
+            setModalVisible(false)
+            message.success('Edit Successfully.')
+            handleReset()
+        } else {
+            message.error('Edit Failed.')
+        }
+    }
+
+    const handleReset = () => {
+        dispatch({
+            type: 'users/getRemote'
+        })
+    }
 
     return (
         <div className="list-table">
             <Table columns={columns} dataSource={users.data} rowKey="id" />
-            <UserModal visible={modalVisible} record={record} closeHandler={handleClose} />
+            <UserModal
+                visible={modalVisible}
+                record={record}
+                closeHandler={handleClose}
+                onFinish={handleFinish}
+            />
         </div>
     )
 }
@@ -55,4 +104,4 @@ const mapStateToProps = ({ users }) => ({
     users
 })
 
-export default connect(mapStateToProps)(Users)
+export default connect(mapStateToProps)(UserListPage)
