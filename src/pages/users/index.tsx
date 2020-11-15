@@ -7,7 +7,7 @@ import {
     editRecord
 } from './service'
 
-const UserListPage = ({ users, dispatch }) => {
+const UserListPage = ({ users, dispatch, userListLoading }) => {
     const [modalVisible, setModalVisible] = useState(false)
     const [record, setRecord] = useState(null)
     const handleClose = () => {
@@ -97,9 +97,9 @@ const UserListPage = ({ users, dispatch }) => {
     return (
         <div className="list-table">
             <Space style={{marginBottom: 10}}>
-                <Button onClick={handleAdd}>Add</Button>
+                <Button type="primary" onClick={handleAdd}>Add</Button>
             </Space>
-            <Table columns={columns} dataSource={users.data} rowKey="id" />
+            <Table columns={columns} dataSource={users.data} rowKey="id" loading={userListLoading} />
             <UserModal
                 visible={modalVisible}
                 record={record}
@@ -111,8 +111,9 @@ const UserListPage = ({ users, dispatch }) => {
 }
 
 // state里面除了users,还有router、loading
-const mapStateToProps = ({ users }) => ({
-    users
+const mapStateToProps = ({ users, loading }) => ({
+    users,
+    userListLoading: loading.models.users
 })
 
 export default connect(mapStateToProps)(UserListPage)
