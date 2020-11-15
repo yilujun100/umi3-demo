@@ -11,6 +11,18 @@ export const getRemoteList = async () => {
     })
 }
 
+// 用户新增
+export const addRecord = async ({ values }) => {
+    return request('http://public-api-v1.aspirantzhang.com/users/', {
+        method: 'post',
+        data: values
+    }).then(res => {
+        return true
+    }).catch(err => {
+        return false
+    })
+}
+
 // 用户编辑
 export const editRecord = async ({
     id,

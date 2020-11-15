@@ -5,7 +5,11 @@ const UserModal = props => {
     const { visible, record, closeHandler, onFinish } = props
     const [form] = Form.useForm()
     useEffect(() => {
-        form.setFieldsValue(record)
+        if (record === undefined) {
+            form.resetFields()
+        } else {
+            form.setFieldsValue(record)
+        }
     }, [visible])
     const onOk = () => {
         form.submit()

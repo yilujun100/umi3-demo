@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Table, Tag, Space, Popconfirm, message } from 'antd'
+import { Table, Tag, Space, Popconfirm, message, Button } from 'antd'
 import { connect } from 'umi'
 import UserModal from './components/UserModal'
 import {
+    addRecord,
     editRecord
 } from './service'
 
@@ -69,14 +70,16 @@ const UserListPage = ({ users, dispatch }) => {
         }
         if (id) {
             serviceFun = editRecord
+        } else {
+            serviceFun = addRecord
         }
         const result = await serviceFun({ id, values })
         if (result) {
             setModalVisible(false)
-            message.success('Edit Successfully.')
+            message.success(`${id === 0 ? 'Add' : 'Edit'} Successfully.`)
             handleReset()
         } else {
-            message.error('Edit Failed.')
+            message.error(`${id === 0 ? 'Add' : 'Edit'} Failed.`)
         }
     }
 
@@ -86,8 +89,16 @@ const UserListPage = ({ users, dispatch }) => {
         })
     }
 
+    const handleAdd = () => {
+        setModalVisible(true)
+        setRecord(undefined)
+    }
+
     return (
         <div className="list-table">
+            <Space style={{marginBottom: 10}}>
+                <Button onClick={handleAdd}>Add</Button>
+            </Space>
             <Table columns={columns} dataSource={users.data} rowKey="id" />
             <UserModal
                 visible={modalVisible}
