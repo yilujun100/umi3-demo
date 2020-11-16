@@ -10,24 +10,41 @@
 import { Reducer, Effect, Subscription } from 'umi'
 import { getRemoteList, editRecord, deleteRecord } from './service'
 import { message } from 'antd'
+import { SingleUserType } from './data.d'
 
-interface IUserModel {
-    namespace: 'users',
-    state: {},
+export interface UserState {
+    data: SingleUserType[];
+    meta: {
+        total: number;
+        per_page: number;
+        page: number;
+    };
+}
+interface UserModelType {
+    namespace: 'users';
+    state: UserState;
     reducers: {
-        getList: Reducer
-    },
+        getList: Reducer<UserState>
+    };
     effects: {
-        getRemote: Effect
-    },
+        getRemote: Effect;
+        delete: Effect;
+    };
     subscriptions: {
-        setup: Subscription
-    }
+        setup: Subscription;
+    };
 }
 
-const UserModel = {
+const UserModel: UserModelType = {
     namespace: 'users', // model的唯一标识名
-    state: {}, // 仓库初始值
+    state: {
+        data: [],
+        meta: {
+            total: 0,
+            per_page: 5,
+            page: 1
+        }
+    }, // 仓库初始值
     reducers: {
         getList(state, { payload }) {
             // return newState;

@@ -1,7 +1,15 @@
-import React, { useEffect } from 'react'
+import React, { FC, useEffect } from 'react'
 import { Modal, Form, Input } from 'antd'
+import { SingleUserType, FormValues } from '../data.d'
 
-const UserModal = props => {
+interface UserModalProps {
+    visible: boolean;
+    record: SingleUserType | undefined;
+    closeHandler: () => void;
+    onFinish: (values: FormValues) => void;
+}
+
+const UserModal: FC<UserModalProps> = props => {
     const { visible, record, closeHandler, onFinish } = props
     const [form] = Form.useForm()
     useEffect(() => {

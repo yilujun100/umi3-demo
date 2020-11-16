@@ -1,7 +1,8 @@
 import request, { extend } from 'umi-request'
 import { message } from 'antd'
+import { FormValues } from './data.d'
 
-const errorHandler = function(error) {
+const errorHandler = function(error: any) {
     if (error.response) {
         if (error.response.status > 400) {
             message.error(error.data.message ? error.data.message : error.data)
@@ -30,7 +31,7 @@ export const getRemoteList = async () => {
 }
 
 // 用户新增
-export const addRecord = async ({ values }) => {
+export const addRecord = async ({ values }: { values: FormValues }) => {
     return extendRequest('http://public-api-v1.aspirantzhang.com/users/', {
         method: 'post',
         data: values
@@ -45,6 +46,9 @@ export const addRecord = async ({ values }) => {
 export const editRecord = async ({
     id,
     values
+}: {
+    id: number;
+    values: FormValues;
 }) => {
     return extendRequest(`http://public-api-v1.aspirantzhang.com/users/${id}`, {
         method: 'put',
@@ -57,7 +61,7 @@ export const editRecord = async ({
 }
 
 // 用户删除
-export const deleteRecord = async ({ id }) => {
+export const deleteRecord = async ({ id }: { id: number }) => {
     return extendRequest(`http://public-api-v1.aspirantzhang.com/users/${id}`, {
         method: 'delete'
     }).then(res => {

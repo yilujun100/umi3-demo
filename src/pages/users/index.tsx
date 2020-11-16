@@ -1,15 +1,22 @@
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 import { Table, Tag, Space, Popconfirm, message, Button } from 'antd'
-import { connect } from 'umi'
+import { connect, Dispatch, Loading, UserState } from 'umi'
 import UserModal from './components/UserModal'
 import {
     addRecord,
     editRecord
 } from './service'
+import { SingleUserType, FormValues } from './data.d'
 
-const UserListPage = ({ users, dispatch, userListLoading }) => {
+interface UserPageProps {
+    users: UserState;
+    dispatch: Dispatch;
+    userListLoading: boolean;
+}
+
+const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) => {
     const [modalVisible, setModalVisible] = useState(false)
-    const [record, setRecord] = useState(null)
+    const [record, setRecord] = useState<SingleUserType | undefined>(undefined)
     const handleClose = () => {
         setModalVisible(false)
     }
@@ -23,7 +30,7 @@ const UserListPage = ({ users, dispatch, userListLoading }) => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: text => <a>{text}</a>
+            render: (text: string) => <a>{text}</a>
         },
         {
             title: 'Create Time',
@@ -33,7 +40,7 @@ const UserListPage = ({ users, dispatch, userListLoading }) => {
         {
             title: 'Action',
             key: 'action',
-            render: (text, record) => (
+            render: (text: any, record: SingleUserType) => (
                 <Space size="middle">
                     <a onClick={() => handleEdit(record)}>Edit</a>
                     <Popconfirm
@@ -50,11 +57,11 @@ const UserListPage = ({ users, dispatch, userListLoading }) => {
             ),
         },
     ]
-    const handleEdit = record => {
+    const handleEdit = (record: SingleUserType) => {
         setModalVisible(true)
         setRecord(record)
     }
-    const handleDelete = id => {
+    const handleDelete = (id: number) => {
         dispatch({
             type: 'users/delete',
             payload: {
@@ -62,7 +69,7 @@ const UserListPage = ({ users, dispatch, userListLoading }) => {
             }
         })
     }
-    const handleFinish = async (values) => {
+    const handleFinish = async (values: FormValues) => {
         let id = 0
         let serviceFun
         if (record) {
@@ -111,7 +118,13 @@ const UserListPage = ({ users, dispatch, userListLoading }) => {
 }
 
 // state里面除了users,还有router、loading
-const mapStateToProps = ({ users, loading }) => ({
+const mapStateToProps = ({
+    users,
+    loading
+}: {
+    users: UserState;
+    loading: Loading;
+}) => ({
     users,
     userListLoading: loading.models.users
 })
