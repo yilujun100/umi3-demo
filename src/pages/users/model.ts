@@ -55,20 +55,26 @@ const UserModel: UserModelType = {
         // *functionName(action, effects) {
         //     yield put()
         // }
-        *getRemote(action, { put, call }) {
-            const data = yield call(getRemoteList)
-            console.log(data)
-            yield put({
-                type: 'getList',
-                payload: data
-            })
+        *getRemote({ payload: { page, per_page } }, { put, call }) {
+            const data = yield call(getRemoteList, { page, per_page })
+            if (data) {
+                yield put({
+                    type: 'getList',
+                    payload: data
+                })
+            }
         },
-        *delete({ payload: {id} }, { put, call }) {
+        *delete({ payload: {id} }, { put, call, select }) {
             const data = yield call(deleteRecord, { id })
             if (data) {
                 message.success('Delete successfully.')
+                const { page, per_page } = yield select((state: any) => state.users.meta.page)
                 yield put({
-                    type: 'getRemote'
+                    type: 'getRemote',
+                    payload: {
+                        page,
+                        per_page
+                    }
                 })
             } else {
                 message.error('Delete failed.')
@@ -79,10 +85,13 @@ const UserModel: UserModelType = {
         setup({ dispatch, history }) {
             return history.listen(({ pathname }) => {
                 if (pathname === '/users') {
-                    dispatch({
-                        type: 'getRemote',
-                        // payload: {}
-                    })
+                    // dispatch({
+                    //     type: 'getRemote',
+                    //     payload: {
+                    //         page: 1,
+                    //         per_page: 5
+                    //     }
+                    // })
                 }
             })
         }

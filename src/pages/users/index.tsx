@@ -1,10 +1,12 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useRef } from 'react'
 import { Table, Tag, Space, Popconfirm, message, Button } from 'antd'
+import ProTable, { ProColumns, TableDropdown } from '@ant-design/pro-table'
 import { connect, Dispatch, Loading, UserState } from 'umi'
 import UserModal from './components/UserModal'
 import {
     addRecord,
-    editRecord
+    editRecord,
+    getRemoteList
 } from './service'
 import { SingleUserType, FormValues } from './data.d'
 
@@ -14,13 +16,20 @@ interface UserPageProps {
     userListLoading: boolean;
 }
 
+interface ActionType {
+    reload: () => void;
+    fetchMore: () => void;
+    reset: () => void;
+}
+
 const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) => {
     const [modalVisible, setModalVisible] = useState(false)
     const [record, setRecord] = useState<SingleUserType | undefined>(undefined)
+    const ref = useRef<ActionType>()
     const handleClose = () => {
         setModalVisible(false)
     }
-    const columns = [
+    const columns: ProColumns<SingleUserType>[] = [
         {
             title: 'ID',
             dataIndex: 'id',
@@ -30,7 +39,7 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: (text: string) => <a>{text}</a>
+            render: (text: any) => <a>{text}</a>
         },
         {
             title: 'Create Time',
@@ -101,12 +110,33 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
         setRecord(undefined)
     }
 
+    const requestHandler = async ({ pageSize, current }) => {
+        const users = await getRemoteList({ page: current, per_page: pageSize })
+        return {
+            data: users.data,
+            success: true
+        }
+    }
+
+    const handleReload = () => {
+        ref.current.reload()
+    }
+
     return (
         <div className="list-table">
             <Space style={{marginBottom: 10}}>
                 <Button type="primary" onClick={handleAdd}>Add</Button>
+                <Button onClick={handleReload} style={{marginLeft: 10}}>Reload</Button>
             </Space>
-            <Table columns={columns} dataSource={users.data} rowKey="id" loading={userListLoading} />
+            <ProTable
+                columns={columns}
+                dataSource={users.data}
+                rowKey="id"
+                loading={userListLoading}
+                request={requestHandler}
+                search={false}
+                actionRef={ref}
+            />
             <UserModal
                 visible={modalVisible}
                 record={record}

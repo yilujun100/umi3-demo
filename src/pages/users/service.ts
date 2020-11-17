@@ -20,8 +20,14 @@ const errorHandler = function(error: any) {
 const extendRequest = extend({ errorHandler })
 
 // 获取用户列表
-export const getRemoteList = async () => {
-    return extendRequest('http://public-api-v1.aspirantzhang.com/users', {
+export const getRemoteList = async ({
+    page,
+    per_page
+}: {
+    page: number;
+    per_page: number;
+}) => {
+    return extendRequest(`http://public-api-v1.aspirantzhang.com/users?page=${page}&per_page=${per_page}`, {
         method: 'get'
     }).then(res => {
         return res
