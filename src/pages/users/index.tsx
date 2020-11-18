@@ -1,5 +1,5 @@
 import React, { FC, useState, useRef } from 'react'
-import { Table, Tag, Space, Popconfirm, message, Button } from 'antd'
+import { Table, Tag, Space, Popconfirm, message, Button, Pagination } from 'antd'
 import ProTable, { ProColumns, TableDropdown } from '@ant-design/pro-table'
 import { connect, Dispatch, Loading, UserState } from 'umi'
 import UserModal from './components/UserModal'
@@ -101,7 +101,11 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
 
     const handleReset = () => {
         dispatch({
-            type: 'users/getRemote'
+            type: 'users/getRemote',
+            payload: {
+                page: users.meta.page,
+                per_page: users.meta.per_page
+            }
         })
     }
 
@@ -110,16 +114,34 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
         setRecord(undefined)
     }
 
-    const requestHandler = async ({ pageSize, current }) => {
-        const users = await getRemoteList({ page: current, per_page: pageSize })
-        return {
-            data: users.data,
-            success: true
-        }
+    const handleReload = () => {
+        dispatch({
+            type: 'users/getRemote',
+            payload: {
+                page: users.meta.page,
+                per_page: users.meta.per_page
+            }
+        })
     }
 
-    const handleReload = () => {
-        ref.current.reload()
+    const paginationHandler = (page: number, pageSize?: number) => {
+        dispatch({
+            type: 'users/getRemote',
+            payload: {
+                page,
+                per_page: pageSize ? pageSize : users.meta.per_page
+            }
+        })
+    }
+
+    const pageSizeHandler = (current: number, size: number) => {
+        dispatch({
+            type: 'users/getRemote',
+            payload: {
+                page: current,
+                per_page: size
+            }
+        })
     }
 
     return (
@@ -133,9 +155,19 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
                 dataSource={users.data}
                 rowKey="id"
                 loading={userListLoading}
-                request={requestHandler}
                 search={false}
-                actionRef={ref}
+                pagination={false}
+            />
+            <Pagination
+                className="list-page"
+                total={users.meta.total}
+                onChange={paginationHandler}
+                onShowSizeChange={pageSizeHandler}
+                current={users.meta.page}
+                pageSize={users.meta.per_page}
+                showSizeChanger
+                showQuickJumper
+                showTotal={total => `Total ${total} items`}
             />
             <UserModal
                 visible={modalVisible}
