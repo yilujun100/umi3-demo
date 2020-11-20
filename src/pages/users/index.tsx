@@ -5,8 +5,7 @@ import { connect, Dispatch, Loading, UserState } from 'umi'
 import UserModal from './components/UserModal'
 import {
     addRecord,
-    editRecord,
-    getRemoteList
+    editRecord
 } from './service'
 import { SingleUserType, FormValues } from './data.d'
 
@@ -16,54 +15,47 @@ interface UserPageProps {
     userListLoading: boolean;
 }
 
-interface ActionType {
-    reload: () => void;
-    fetchMore: () => void;
-    reset: () => void;
-}
-
 const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) => {
     const [modalVisible, setModalVisible] = useState(false)
+    const [confirmLoading, setConfirmLoading] = useState(false)
     const [record, setRecord] = useState<SingleUserType | undefined>(undefined)
-    const ref = useRef<ActionType>()
-    const handleClose = () => {
-        setModalVisible(false)
-    }
     const columns: ProColumns<SingleUserType>[] = [
         {
             title: 'ID',
             dataIndex: 'id',
+            valueType: 'digit',
             key: 'id',
         },
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            valueType: 'text',
             render: (text: any) => <a>{text}</a>
         },
         {
             title: 'Create Time',
             dataIndex: 'create_time',
-            key: 'create_time',
+            valueType: 'dateTime',
+            key: 'create_time'
         },
         {
             title: 'Action',
             key: 'action',
-            render: (text: any, record: SingleUserType) => (
-                <Space size="middle">
-                    <a onClick={() => handleEdit(record)}>Edit</a>
-                    <Popconfirm
-                        title="Are you sure delete this user?"
-                        okText="Yes"
-                        cancelText="No"
-                        onConfirm={() => {
-                            handleDelete(record.id)
-                        }}
-                    >
-                        <a>Delete</a>
-                    </Popconfirm>
-                </Space>
-            ),
+            valueType: 'option',
+            render: (text: any, record: SingleUserType) => [
+                <a onClick={() => handleEdit(record)}>Edit</a>,
+                <Popconfirm
+                    title="Are you sure delete this user?"
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => {
+                        handleDelete(record.id)
+                    }}
+                >
+                    <a>Delete</a>
+                </Popconfirm>
+            ]
         },
     ]
     const handleEdit = (record: SingleUserType) => {
@@ -78,7 +70,11 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
             }
         })
     }
+    const handleClose = () => {
+        setModalVisible(false)
+    }
     const handleFinish = async (values: FormValues) => {
+        setConfirmLoading(true)
         let id = 0
         let serviceFun
         if (record) {
@@ -94,7 +90,9 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
             setModalVisible(false)
             message.success(`${id === 0 ? 'Add' : 'Edit'} Successfully.`)
             handleReset()
+            setConfirmLoading(false)
         } else {
+            setConfirmLoading(false)
             message.error(`${id === 0 ? 'Add' : 'Edit'} Failed.`)
         }
     }
@@ -146,10 +144,6 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
 
     return (
         <div className="list-table">
-            <Space style={{marginBottom: 10}}>
-                <Button type="primary" onClick={handleAdd}>Add</Button>
-                <Button onClick={handleReload} style={{marginLeft: 10}}>Reload</Button>
-            </Space>
             <ProTable
                 columns={columns}
                 dataSource={users.data}
@@ -157,6 +151,19 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
                 loading={userListLoading}
                 search={false}
                 pagination={false}
+                options={{
+                    density: true,
+                    fullScreen: true,
+                    reload: () => {
+                        handleReload()
+                    },
+                    setting: true
+                }}
+                headerTitle="User List"
+                toolBarRender={() => [
+                    <Button type="primary" onClick={handleAdd}>Add</Button>,
+                    <Button onClick={handleReload}>Reload</Button>
+                ]}
             />
             <Pagination
                 className="list-page"
@@ -174,6 +181,7 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
                 record={record}
                 closeHandler={handleClose}
                 onFinish={handleFinish}
+                confirmLoading={confirmLoading}
             />
         </div>
     )
