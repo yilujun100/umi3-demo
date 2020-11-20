@@ -49,9 +49,7 @@ const UserListPage: FC<UserPageProps> = ({ users, dispatch, userListLoading }) =
                     title="Are you sure delete this user?"
                     okText="Yes"
                     cancelText="No"
-                    onConfirm={() => {
-                        handleDelete(record.id)
-                    }}
+                    onConfirm={() => handleDelete(record.id)}
                 >
                     <a>Delete</a>
                 </Popconfirm>
